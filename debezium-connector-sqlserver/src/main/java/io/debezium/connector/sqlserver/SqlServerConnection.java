@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -803,7 +804,7 @@ public class SqlServerConnection extends JdbcConnection {
         return queryAndMap(query, rs -> rs.next() ? extractor.apply(rs) : null);
     }
 
-    public long getMsCdcCapturePollingInterval() {
+    public Duration getMsCdcCapturePollingInterval() {
         AtomicLong msCdcCapturePollingInterval = new AtomicLong(5); // default
         try {
             call(GET_MS_CDC_JOB_INFO, null, rs -> {
@@ -817,7 +818,7 @@ public class SqlServerConnection extends JdbcConnection {
         catch (SQLException e) {
             LOGGER.warn("Exception caught while calling sys.sp_cdc_help_jobs", e);
         }
-        return msCdcCapturePollingInterval.get();
+        return Duration.ofSeconds(msCdcCapturePollingInterval.get());
     }
 
     public boolean didTransactionEnd() {
